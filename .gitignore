@@ -416,3 +416,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+
+# Project-specific repos and files
+env/
+__pycache__/
+*.pyc
+.env
