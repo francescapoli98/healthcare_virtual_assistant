@@ -1,10 +1,10 @@
 # Healthcare virtual assistant
 La challenge consiste nello sviluppare un assistente virtuale per il settore sanitario. L’obiettivo è creare un sistema che possa:
 
-Rispondere a domande complesse dei pazienti
-Fornire consigli medici di base
-Gestire gli appuntamenti
-Comprendere e generare risposte contestuali in modo accurato e naturale
+- Rispondere a domande complesse dei pazienti
+- Fornire consigli medici di base
+- Gestire gli appuntamenti
+- Comprendere e generare risposte contestuali in modo accurato e naturale
  
 
 ### Componenti 
