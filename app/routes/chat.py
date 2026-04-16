@@ -1,70 +1,47 @@
-from flask import Blueprint, request, jsonify
-### per gestione appuntamenti (funzione'basic' con query su mysql db)
-from ..models import ChatSessione, ChatMessaggio
+from flask import Blueprint, request
 from ..core import db
+from ..models import ChatSessione, ChatMessaggio
 ### per consigli medici in chat (RAG + context + response generation)
 # from rag.retriever import retrieve_context
 # from rag.ai_client import generate_response
 
 chat_bp = Blueprint("chat", __name__)
-@chat_bp.route("/chat/sessione", methods=["POST"])
-def crea_sessione():
-    data = request.json
 
-    sessione = ChatSessione(
-        paziente_id=data["paziente_id"]
-    )
-
-    db.session.add(sessione)
-    db.session.commit()
-
-    return jsonify({"sessione_id": sessione.id})
-
-#### gestione messaggi con RAG
 @chat_bp.route("/chat/messaggio", methods=["POST"])
 def invia_messaggio():
     data = request.json
+    messaggio = data.get("messaggio")
+    sessione_id = data.get("sessione_id")
 
-    sessione_id = data["sessione_id"]
-    testo = data["messaggio"]
+    # crea sessione se non esiste
+    if not sessione_id:
+        sessione = ChatSessione(paziente_id=1)  # per ora fisso
+        db.session.add(sessione)
+        db.session.commit()
+        sessione_id = sessione.id
 
     # salva messaggio utente
-    msg_user = ChatMessaggio(
+    user_msg = ChatMessaggio(
         sessione_id=sessione_id,
         ruolo="utente",
-        contenuto=testo
+        contenuto=messaggio
     )
-    db.session.add(msg_user)
+    db.session.add(user_msg)
 
-    # RAG
-    context = retrieve_context(testo)
-    risposta = generate_response(testo, context)
+    # risposta agente (placeholder AI)
+    risposta_test = f"Ho ricevuto: {messaggio}"
 
-    # salva risposta AI
-    msg_ai = ChatMessaggio(
+    # salva risposta assistente
+    bot_msg = ChatMessaggio(
         sessione_id=sessione_id,
         ruolo="assistente",
-        contenuto=risposta
+        contenuto=risposta_test
     )
-    db.session.add(msg_ai)
+    db.session.add(bot_msg)
 
     db.session.commit()
 
-    return jsonify({"risposta": risposta})
-
-@chat_bp.route("/chat/sessione/<int:sessione_id>", methods=["GET"])
-def get_chat(sessione_id):
-    messaggi = ChatMessaggio.query.filter_by(
-        sessione_id=sessione_id
-    ).order_by(ChatMessaggio.creato_il).all()
-
-    result = [
-        {
-            "ruolo": m.ruolo,
-            "contenuto": m.contenuto,
-            "timestamp": m.creato_il
-        }
-        for m in messaggi
-    ]
-
-    return jsonify(result)
+    return {
+        "sessione_id": sessione_id,
+        "risposta": risposta_test
+    }
