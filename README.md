@@ -68,17 +68,24 @@ Struttura del progetto:
 │   └── chat.py\
 │\
 ├── routes/ \
-│   ├── appuntamenti.py     ← API CRUD appuntamenti \
-│   ├── chat.py             ← API chat + storico\
-│   └── medici.py           ← API raccomandazione medico\
+│   ├── appuntamenti.py         ← API CRUD appuntamenti \
+│   ├── chat.py                 ← API chat + storico\
+│   └── medici.py               ← API raccomandazione medico\
+│\
+├── services/ \            
+│   ├── chat_service.py\
+│   ├── appointment_service.py\
+│   └── recommendation_service.py\
 │\
 ├── rag/ \
-│   ├── embedder.py         ← embeddings da MedQuAD \
-│   ├── retriever.py        ← contesto \
-│   └── ai_client.py        ← Ollama \
+│   ├── embedder.py             ← embeddings da MedQuAD \
+│   ├── retriever.py            ← contesto \
+│   └── ai_client.py            ← Ollama \
 │\
 ├── data/ \
-│   └── medquad_sample.json ← subset del dataset medico \
+│   └── medquad_sample.json     ← subset del dataset medico \
+│   └── appuntamenti_medici.sql ← gestione appuntamenti medici \
+
 │ \
 └── frontend/ \
     ├── index.html\
