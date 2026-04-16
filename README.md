@@ -51,42 +51,35 @@ _Le funzionalità a priorità bassa sono opzionali: implementale solo dopo aver 
 
 ------------------
 
-Struttura del progetto:
-
-📁/ \
-├── docker-compose.yml\
-├── Dockerfile\
+Struttura del progetto per facilitarne la navigazione:
+📁 **healthcare\_virtual\_assistant/**\
+├── run.py\
+├── 🐋 docker-compose.yml\
+├── 🐋 Dockerfile\
 ├── requirements.txt\
 │\
-├── app.py\                  
-├── config.py\
+├── 📁 app/\
+│   ├── \_\_init\_\_.py\
+│   ├── config.py\
+│   ├── extensions.py\
+│   │\
+│   ├── models.py\
+│   │\
+│   ├── 📁 routes/\
+│   │   ├── chat.py                ← API chat + storico \
+│   │   ├── appuntamenti.py        ← API CRUD appuntamenti\
+│   │   └── medici.py              ← API raccomandazione medico \
+│   │
+│   └── 📁 rag/\
+│       ├── embedder.py\
+│       ├── retriever.py\
+│       └── ai_client.py\
 │\
-├── models/\
-│   ├── __init__.py\
-│   ├── utenti.py\
-│   ├── appuntamenti.py\
-│   └── chat.py\
+├── 📁 data/\
+│   ├── medquad_sample.json\
+│   └── appuntamenti_medici.sql\
 │\
-├── routes/ \
-│   ├── appuntamenti.py         ← API CRUD appuntamenti \
-│   ├── chat.py                 ← API chat + storico\
-│   └── medici.py               ← API raccomandazione medico\
-│\
-├── services/ \            
-│   ├── chat_service.py\
-│   ├── appointment_service.py\
-│   └── recommendation_service.py\
-│\
-├── rag/ \
-│   ├── embedder.py             ← embeddings da MedQuAD \
-│   ├── retriever.py            ← contesto \
-│   └── ai_client.py            ← Ollama \
-│\
-├── data/ \
-│   └── medquad_sample.json     ← subset del dataset medico \
-│   └── appuntamenti_medici.sql ← gestione appuntamenti medici \
-│ \
-└── frontend/ \
+└── 📁 frontend/                   ← React.js\
     ├── index.html\
     ├── style.css\
-    └── app.js 
+    └── app.js
