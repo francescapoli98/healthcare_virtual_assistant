@@ -46,6 +46,41 @@ La challenge consiste nello sviluppare un assistente virtuale per il settore san
 - Pagina preview medico: dettaglio problema paziente e chat precedente
 
 _Le funzionalità a priorità bassa sono opzionali: implementale solo dopo aver completato le funzionalità principali (CRUD)._
- 
 
 **Requisito obbligatorio:** integra almeno un’altra funzionalità di AI a tua scelta, rilevante per questo caso d’uso.
+
+------------------
+
+Struttura del progetto:
+
+📁/ \
+├── docker-compose.yml\
+├── Dockerfile\
+├── requirements.txt\
+│\
+├── app.py\                  
+├── config.py\
+│\
+├── models/\
+│   ├── __init__.py\
+│   ├── utenti.py\
+│   ├── appuntamenti.py\
+│   └── chat.py\
+│\
+├── routes/ \
+│   ├── appuntamenti.py     ← API CRUD appuntamenti \
+│   ├── chat.py             ← API chat + storico\
+│   └── medici.py           ← API raccomandazione medico\
+│\
+├── rag/ \
+│   ├── embedder.py         ← embeddings da MedQuAD \
+│   ├── retriever.py        ← contesto \
+│   └── ai_client.py        ← Ollama \
+│\
+├── data/ \
+│   └── medquad_sample.json ← subset del dataset medico \
+│ \
+└── frontend/ \
+    ├── index.html\
+    ├── style.css\
+    └── app.js \
