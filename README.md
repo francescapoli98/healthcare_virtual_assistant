@@ -85,7 +85,6 @@ Struttura del progetto:
 ├── data/ \
 │   └── medquad_sample.json     ← subset del dataset medico \
 │   └── appuntamenti_medici.sql ← gestione appuntamenti medici \
-
 │ \
 └── frontend/ \
     ├── index.html\
