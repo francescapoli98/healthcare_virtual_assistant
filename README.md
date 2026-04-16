@@ -90,4 +90,4 @@ Struttura del progetto:
 └── frontend/ \
     ├── index.html\
     ├── style.css\
-    └── app.js \
+    └── app.js 
