@@ -4,4 +4,5 @@ from flask_cors import CORS
 
 db = SQLAlchemy()
 migrate = Migrate()
+# cors = CORS(resources={r"/api/*": {"origins": "http://localhost:3000"}})
 cors = CORS()

@@ -1,18 +1,20 @@
 from flask import Flask
-from .extensions import db, migrate, cors
-from .routes import chat, appointments, patients, doctors
+from .core import db
+from .routes.chat import chat_bp
+from .routes.appuntamenti import appuntamenti_bp
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('app.config.DevelopmentConfig')
+
+    app.config.from_object("app.config.Config")
 
     db.init_app(app)
-    migrate.init_app(app, db)
-    cors.init_app(app)
+    ### servizi disponibili nell'app, ognuna salvata come un blueprint per modularità
+    app.register_blueprint(chat_bp)
+    app.register_blueprint(appuntamenti_bp)
 
-    app.register_blueprint(chat.bp, url_prefix='/api/chat')
-    app.register_blueprint(appointments.bp, url_prefix='/api/appointments')
-    app.register_blueprint(patients.bp, url_prefix='/api/patients')
-    app.register_blueprint(doctors.bp, url_prefix='/api/doctors')
+    @app.route("/")
+    def home():
+        return {"message": "Backend attivo"}
 
     return app

@@ -49,3 +49,5 @@ _Le funzionalità a priorità bassa sono opzionali: implementale solo dopo aver 
  
 
 **Requisito obbligatorio:** integra almeno un’altra funzionalità di AI a tua scelta, rilevante per questo caso d’uso.
+
+

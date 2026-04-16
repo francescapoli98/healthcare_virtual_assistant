@@ -423,3 +423,5 @@ env/
 __pycache__/
 *.pyc
 .env
+report_utils/
+archive/
