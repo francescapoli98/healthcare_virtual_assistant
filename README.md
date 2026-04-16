@@ -46,8 +46,5 @@ La challenge consiste nello sviluppare un assistente virtuale per il settore san
 - Pagina preview medico: dettaglio problema paziente e chat precedente
 
 _Le funzionalità a priorità bassa sono opzionali: implementale solo dopo aver completato le funzionalità principali (CRUD)._
- 
 
 **Requisito obbligatorio:** integra almeno un’altra funzionalità di AI a tua scelta, rilevante per questo caso d’uso.
-
-
