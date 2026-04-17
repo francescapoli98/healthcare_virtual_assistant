@@ -7,3 +7,5 @@ python-dotenv==1.2.2
 sentence-transformers
 langchain
 langchain-google-genai
+langchain-community
+langchain_huggingface
