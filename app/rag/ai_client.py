@@ -1,4 +1,4 @@
-from ..extensions import llm
+from flask import current_app
 
 def generate_response(query, context):
     prompt = f"""
@@ -15,5 +15,7 @@ def generate_response(query, context):
     Suggerisci di consultare un medico.
     """
 
+    llm = current_app.llm  # ✅ prende l'LLM dall'app
+
     response = llm.invoke(prompt)
-    return response.content
+    return getattr(response, "content", str(response))

@@ -1,20 +1,29 @@
-// src/services/api.js
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
 });
 
-export const sendMessage = (message, sessionId) =>
-  api.post('/api/chat', { message, session_id: sessionId });
 
-export const getHistory = (sessionId) =>
-  api.get(`/api/chat/history/${sessionId}`);
+// CHAT
+export const sendMessage = (message) =>
+  api.post("/chat/messaggio", {
+    message,
+  });
 
-export const getAppointments = (patientId) =>
-  api.get(`/api/appointments/${patientId}`);
 
+// APPUNTAMENTI - CREAZIONE
 export const createAppointment = (data) =>
-  api.post('/api/appointments', data);
+  api.post("/appuntamenti", data);
+
+
+// APPUNTAMENTI - LISTA PAZIENTE
+export const getAppointments = (patientId) =>
+  api.get(`/pazienti/${patientId}/appuntamenti`);
+
+
+// CANCELLA APPUNTAMENTO
+export const cancelAppointment = (id) =>
+  api.delete(`/appuntamenti/${id}`);
 
 export default api;
