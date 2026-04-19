@@ -1,6 +1,7 @@
 import os
 
 class Config:
+    SECRET_KEY = "la-tua-chiave-generata"
     ## mysql db
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:@localhost/gestione_appuntamenti"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
