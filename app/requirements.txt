@@ -9,4 +9,5 @@ langchain
 langchain-google-genai
 langchain-community
 langchain_huggingface
+datasets
 faiss-cpu

@@ -7,3 +7,5 @@ class Config:
 
     ## gemini AI API
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AQ.Ab8RN6L2xbxlh0wt8dQQf4TONBuhZCf_ErbRZ8d5KECZC5CKDw")
+     ## huggingface
+    HF_TOKEN = os.getenv("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")

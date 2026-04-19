@@ -1,4 +1,5 @@
 /* DEV ADDED */
+/*chatbox generica*/
 
 .chat-container {
   height: 100vh;
@@ -49,7 +50,415 @@
   margin-left: 10px;
 }
 
-/* default */
+/*prenotazione appuntamenti*/
+.card {
+  padding: 16px;
+  margin: 10px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 460px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #111;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: #111;
+}
+
+.textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  min-height: 70px;
+  resize: vertical;
+  font-family: inherit;
+  color: #111;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* Calendar */
+.cal-wrap {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cal-month {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #6b7280;
+  padding: 0 6px;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.day-label {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.day-cell {
+  text-align: center;
+  padding: 7px 2px;
+  font-size: 13px;
+  color: #9ca3af;
+  cursor: default;
+}
+
+.day-cell-past {
+  opacity: 0.35;
+}
+
+.day-cell-avail {
+  background: #EAF3DE;
+  color: #3B6D11;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.day-cell-selected {
+  background: #639922;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #EAF3DE;
+  border: 1px solid #97C459;
+  display: inline-block;
+}
+
+.legend-text {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Slots */
+.slot-section {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.slot-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.slot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot-btn {
+  padding: 5px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  color: #111;
+  font-family: inherit;
+}
+
+.slot-occ {
+  opacity: 0.35;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.slot-sel {
+  background: #639922;
+  border-color: #3B6D11;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Buttons */
+.confirm-btn {
+  width: 100%;
+  padding: 10px 0;
+  margin-top: 4px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.reset-btn {
+  margin-top: 8px;
+  padding: 6px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Messages */
+.error-box {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #B91C1C;
+  margin-bottom: 10px;
+}
+
+.success-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 0;
+}
+
+.success-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #EAF3DE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #3B6D11;
+}
+
+.success-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+}
+
+.success-detail {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/*doctors suggested*/
+.medici-suggeriti {
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border-top: 1px solid #d1fae5;
+}
+
+.medici-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.medico-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.medico-nome   { font-size: 14px; font-weight: 500; color: #111; flex: 1; }
+.medico-spec   { font-size: 12px; color: #6b7280; }
+.medico-prenota-btn {
+  padding: 4px 12px;
+  background: #639922;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.input-box-row {
+  display: flex;
+  padding: 6px 10px;
+  gap: 8px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.prenota-btn {
+  font-size: 13px;
+  padding: 6px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #5c1bff;
+  cursor: pointer;
+}
+
+.annulla-btn {
+  font-size: 13px;
+  padding: 6px 14px;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  cursor: pointer;
+}
+
+/*login system/authentication*/
+/* Auth */
+.auth-overlay {
+  height: 100vh; display: flex;
+  align-items: center; justify-content: center;
+  background: #f5f5f5;
+}
+.auth-card {
+  background: #fff; border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 2rem; width: 360px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.auth-logo { font-size: 18px; font-weight: 600; color: #111; text-align: center; margin-bottom: 8px; }
+.auth-tabs { display: flex; gap: 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+.auth-tab { flex: 1; padding: 8px; border: none; background: #f9fafb; font-size: 14px; cursor: pointer; }
+.auth-tab-active { background: #111; color: #fff; }
+.auth-row { display: flex; gap: 8px; }
+.auth-input {
+  width: 100%; padding: 9px 10px; border: 1px solid #d1d5db;
+  border-radius: 8px; font-size: 14px; box-sizing: border-box;
+}
+
+/* Layout */
+.app-layout { display: flex; height: 100vh; overflow: hidden; }
+.app-main   { flex: 1; overflow: hidden; }
+.app-loading { display: flex; align-items: center; justify-content: center; height: 100vh; color: #6b7280; }
+
+/* Side panel */
+.side-panel {
+  width: 280px; border-right: 1px solid #e5e7eb;
+  background: #fff; display: flex; flex-direction: column;
+  flex-shrink: 0;
+}
+.side-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 12px; border-bottom: 1px solid #e5e7eb;
+}
+.side-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #EAF3DE; color: #3B6D11;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex-shrink: 0;
+}
+.side-user-info { flex: 1; min-width: 0; }
+.side-user-name { font-size: 13px; font-weight: 500; color: #111; }
+.side-logout-btn {
+  font-size: 12px; padding: 4px 8px; border: 1px solid #e5e7eb;
+  border-radius: 6px; background: #fff; cursor: pointer; color: #6b7280;
+}
+.side-tabs { display: flex; border-bottom: 1px solid #e5e7eb; }
+.side-tab { flex: 1; padding: 10px; border: none; background: none; font-size: 13px; cursor: pointer; color: #6b7280; }
+.side-tab-active { color: #111; font-weight: 600; border-bottom: 2px solid #639922; }
+.side-content { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.side-empty { font-size: 13px; color: #9ca3af; text-align: center; padding: 20px 0; }
+
+/* Appuntamenti nel pannello */
+.appt-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.appt-programmato { border-left: 3px solid #639922; }
+.appt-completato  { border-left: 3px solid #9ca3af; opacity: 0.7; }
+.appt-annullato   { border-left: 3px solid #FECACA; opacity: 0.5; }
+.appt-data   { font-weight: 500; color: #111; margin-bottom: 2px; }
+.appt-medico { font-size: 12px; color: #6b7280; }
+.appt-stato  { font-size: 11px; color: #9ca3af; text-transform: uppercase; margin-top: 4px; }
+.appt-cancel-btn {
+  margin-top: 6px; font-size: 12px; padding: 3px 10px;
+  border: 1px solid #FECACA; border-radius: 6px;
+  background: #FEF2F2; color: #B91C1C; cursor: pointer;
+}
+
+/* Storico chat nel pannello */
+.storico-msg { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; font-size: 13px; }
+.storico-utente    { background: #f0fdf4; }
+.storico-assistente { background: #f9fafb; }
+.storico-ruolo { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
+.storico-testo { color: #111; line-height: 1.5; }
+
+/*********************************************************/
+/* DEFAULT/BASIC STATS */
 
 .counter {
   font-size: 16px;

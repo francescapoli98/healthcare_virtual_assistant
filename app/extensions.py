@@ -7,4 +7,12 @@ def create_llm(app):
         temperature=0.3
     )
 
-# llm = init_llm(app)
+llm_instance = None
+
+def get_llm(app):
+    global llm_instance
+
+    if llm_instance is None:
+        llm_instance = create_llm(app)
+
+    return llm_instance
