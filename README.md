@@ -5,7 +5,15 @@ La challenge consiste nello sviluppare un assistente virtuale per il settore san
 - Fornire consigli medici di base
 - Gestire gli appuntamenti
 - Comprendere e generare risposte contestuali in modo accurato e naturale
- 
+
+## Setup
+
+1. Clona la repo
+2. Copia `.env.example` in `.env` e inserisci le tue API keys
+3. Costruisci gli indici FAISS (solo la prima volta): `docker compose run backend python -m app.rag.build_index`
+4. Avvia tutto: `docker compose up --build`
+
+-----------------------------
 
 ### Componenti 
 
