@@ -19,7 +19,8 @@ services:
       retries: 5
 
   backend:
-    build: ./app
+    image: francescapoli98/healthcare-backend:latest
+    # build: ./app
     ports:
       - "5000:5000"
     env_file:
@@ -33,7 +34,8 @@ services:
       - ./faiss_index:/app/faiss_index  # persiste gli indici FAISS
 
   frontend:
-    build: ./frontend
+    image: francescapoli98/healthcare-frontend:latest
+    # build: ./frontend
     ports:
       - "5173:5173"
     environment:
