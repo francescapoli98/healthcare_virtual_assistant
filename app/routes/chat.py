@@ -15,14 +15,14 @@ def invia_messaggio():
     paziente_id = data.get("paziente_id", 1)
     sessione_id = data.get("sessione_id")
 
-    # 1. Gestione Sessione SQL
+    # Sessione SQL
     if not sessione_id:
         sessione = ChatSessione(paziente_id=paziente_id)
         db.session.add(sessione)
         db.session.commit()
         sessione_id = sessione.id
 
-    # 2. CHIAMATA ALL'ORCHESTRATORE (AI con Memoria)
+    # Chiamata pipeline (AI con memoria)
     ai_response = handle_user_query(messaggio, sessione_id)
     
     # Estraiamo l'analisi fatta dall'AI per decidere cosa fare
@@ -33,7 +33,7 @@ def invia_messaggio():
     
     medici_list = []
 
-    # 3. LOGICA EXTRA: Ricerca Medici (se intent è raccomandazione)
+    # EXTRA: Ricerca Medici
     if intent == "raccomandazione" and specialty:
         risultati = Medico.query.filter(
             Medico.specializzazione.ilike(f"%{specialty}%")
@@ -51,13 +51,12 @@ def invia_messaggio():
             if "ti consiglio" not in risposta_testuale.lower():
                 risposta_testuale += f"\n\nPer questa problematica ti consiglio: {nomi}. Vuoi prenotare?"
 
-    # 4. SINCRONIZZAZIONE DB FISICO
+    # SINCRONIZZAZIONE DB FISICO
     db.session.add(ChatMessaggio(sessione_id=sessione_id, ruolo="utente", contenuto=messaggio))
     db.session.add(ChatMessaggio(sessione_id=sessione_id, ruolo="assistente", contenuto=risposta_testuale))
     db.session.commit()
 
-    # 5. RISPOSTA AL FRONTEND (Appiattita per ChatWindow.jsx)
-    # Portiamo intent e medici al primo livello così data.intent funziona in React
+    # RISPOSTA AL FRONTEND 
     return jsonify({
         "sessione_id": sessione_id,
         "response": risposta_testuale,

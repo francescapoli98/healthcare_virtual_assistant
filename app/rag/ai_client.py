@@ -2,9 +2,8 @@ from flask import current_app
 from app.rag.retriever import retrieve_context, semantic_check
 from app.rag.memory import get_recent_context, add_message
 
-# -----------------------------
 # MEMORY (CONVERSATION SUMMARY)
-# -----------------------------
+
 def summarize_chat(history):
     if not history:
         return ""
@@ -27,16 +26,7 @@ Riassunto:
     return getattr(response, "content", str(response))
 
 
-# def build_context(chat_history, rag_context):
-#     return {
-#         "memory": summarize_chat(chat_history),
-#         "rag": rag_context
-#     }
-
-
-# -----------------------------
 # ANALISI QUERY (LLM)
-# -----------------------------
 def analyze_query(messaggio: str) -> dict:
     prompt = f"""
 Analizza il messaggio di un paziente ed estrai queste informazioni in formato JSON:
@@ -79,15 +69,11 @@ JSON:
         }
 
 
-# -----------------------------
 # GENERAZIONE RISPOSTA (LLM)
-# -----------------------------
 def generate_response(query: str, context_data: dict, memory: str = "") -> str:
     context = context_data.get("context", "")
     confidence = context_data.get("confidence", 0.0)
     has_clinical = context_data.get("has_clinical_cases", False)
-
-    # memory = summarize_chat(chat_history or [])
 
     clinical_note = (
         "Il contesto include casi clinici sintetici da dataset medici certificati."
@@ -144,13 +130,13 @@ Risposta:
     return getattr(response, "content", str(response))
 
 
-# -----------------------------
-# ORCHESTRAZIONE COMPLETA
-# -----------------------------
+# PIPELINE COMPLETA
 def handle_user_query(query: str, session_id: int):
     print(f"DEBUG: Session ID ricevuto: {session_id}")
     # 1. FILTRO SEMANTICO (Pre-analisi)
     sem, conf = semantic_check(query)
+
+    ####### richieste troppo stringenti, il bot non generalizza.
 
     # if sem == "non_medical":
     #     return {
@@ -164,19 +150,17 @@ def handle_user_query(query: str, session_id: int):
     #         "action": None
     #     }
 
-    # 2. AGGIORNAMENTO IMMEDIATO MEMORIA (Messaggio Utente)
     # Fondamentale: salviamo il messaggio PRIMA di generare il riassunto
     add_message(session_id, "user", query)
 
-    # 3. RECUPERO STORIA E RAG
-    # Ora chat_history contiene anche l'ultimo messaggio appena salvato
+    #  RECUPERO STORIA + RAG
     chat_history = get_recent_context(session_id)
     memory_summary = summarize_chat(chat_history)
     
     context_data = retrieve_context(query)
     analysis = analyze_query(query)
 
-    # 4. TRIAGE URGENTE
+    # CASO TRIAGE URGENTE
     if analysis.get("triage") == "urgente":
         response_text = (
             "I sintomi descritti potrebbero essere seri. "
@@ -190,11 +174,11 @@ def handle_user_query(query: str, session_id: int):
             "confidence": conf
         }
 
-    # 5. GENERAZIONE RISPOSTA LLM
+    # GENERAZIONE RISPOSTA LLM
     # Passiamo il memory_summary generato con la storia aggiornata
     response = generate_response(query, context_data, memory_summary)
 
-    # 6. LOGICA DI BUSINESS (Prenotazioni / Intent)
+    # BUSINESS LOGIC (Prenotazioni / Intent)
     action = None
     intent = analysis.get("intent")
 
@@ -204,7 +188,6 @@ def handle_user_query(query: str, session_id: int):
             response += "\n\nVuoi che ti aiuti a trovare lo specialista più adatto?"
     # Se l'utente vuole prenotare ma mancano dettagli
     if analysis.get("intent") == "prenotazione":
-        # Verifichiamo nella memoria se abbiamo già chiesto qualcosa
         summary = summarize_chat(chat_history)
         if "data" not in query.lower() and "ore" not in query.lower():
             response = "Certamente, posso aiutarti a prenotare. Per quale giorno e a che ora preferiresti l'appuntamento?"
@@ -213,12 +196,12 @@ def handle_user_query(query: str, session_id: int):
     else:
         response = generate_response(query, retrieve_context(query), summarize_chat(chat_history))
 
-    # Trigger booking UI
+    # Trigger booking UI 
     if intent == "prenotazione" and "si" in query.lower():
         action = "open_booking"
         response = "Perfetto, procediamo con la prenotazione."
 
-    # 7. AGGIORNAMENTO MEMORIA (Risposta Assistente)
+    # AGGIORNAMENTO MEMORIA (Risposta Assistente)
     add_message(session_id, "assistant", response)
 
     return {

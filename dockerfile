@@ -2,15 +2,11 @@ FROM python:3.12
 
 WORKDIR /app
 
-# dipendenze
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# codice backend
 COPY . .
 
-# variabile Flask (opzionale ma utile)
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=development
 

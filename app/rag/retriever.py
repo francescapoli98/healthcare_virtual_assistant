@@ -31,9 +31,7 @@ class RAGEngine:
 
         return cls._instance
 
-    # -----------------------------
-    # LOAD INDEX (UNA SOLA VOLTA)
-    # -----------------------------
+    # LOAD INDEX (da fare 1 volta prima di lanciare chatbot)
     def _load_indexes(self):
         medquad_path = os.path.join(FAISS_DIR, "medquad")
         mimic_path   = os.path.join(FAISS_DIR, "mimic")
@@ -54,9 +52,7 @@ class RAGEngine:
 
         print("[RAG] Ready ✔")
 
-    # -----------------------------
     # RETRIEVE BASE (COMPAT)
-    # -----------------------------
     def retrieve(self, query: str, top_k: int = 6):
         results = self.retrieve_with_scores(query, top_k)
 
@@ -78,9 +74,7 @@ class RAGEngine:
             )
         }
 
-    # -----------------------------
-    # RETRIEVE CON SCORE 
-    # -----------------------------
+    # RETRIEVE CON SCORE (diversi casi d'uso dei due dataset)
     def retrieve_with_scores(self, query: str, top_k: int = 6):
         medquad = self._medquad_db.similarity_search_with_score(query, k=top_k)
         mimic   = self._mimic_db.similarity_search_with_score(query, k=top_k)
@@ -89,9 +83,7 @@ class RAGEngine:
 
         return fused[:top_k]
 
-    # -----------------------------
-    # FUSION CON SCORE
-    # -----------------------------
+    # FUSION CON SCORE (si usano comunque in sincrono)
     def _fusion_with_scores(self, a, b):
         seen = set()
         out = []
@@ -108,20 +100,16 @@ class RAGEngine:
 
         return out
 
-    # -----------------------------
-    # SCORE → CONFIDENCE
-    # -----------------------------
+    # SCORE = CONFIDENCE
     def _score_to_confidence(self, score: float) -> float:
         """
-        Converte distanza FAISS in confidence (0–1)
+        Converte distanza FAISS in confidence (0-1)
         Più score basso → più confidence alta
         """
         confidence = max(0.0, min(1.0, 1 - score))
         return round(confidence, 3)
 
-    # -----------------------------
     # CLASSIFICAZIONE SEMANTICA
-    # -----------------------------
     def semantic_filter(self, query: str):
         results = self.retrieve_with_scores(query, top_k=4)
 
@@ -139,9 +127,7 @@ class RAGEngine:
             return "non_medical", confidence
 
 
-# -----------------------------
 # PUBLIC API
-# -----------------------------
 def retrieve_context(query: str, top_k: int = 6):
     engine = RAGEngine()
     return engine.retrieve(query, top_k)

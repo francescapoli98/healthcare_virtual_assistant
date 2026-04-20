@@ -18,14 +18,14 @@ def build():
         model_name="sentence-transformers/all-MiniLM-L6-v2",  # più veloce
         encode_kwargs={"normalize_embeddings": True}
     )
+    ### modello medico migliore ma troppo pesante per FAISS
+     
     # HuggingFaceEmbeddings(
     #             model_name="BAAI/bge-base-en-v1.5",
     #             encode_kwargs={"normalize_embeddings": True}
     #         )
     
-
     os.makedirs(FAISS_DIR, exist_ok=True)
-
     print("[BUILD] Loading documents...")
 
     medquad_docs = [
@@ -38,14 +38,14 @@ def build():
         for d in load_mimic()
     ]
 
-    # Limita a un numero gestibile
+    # Limita a un numero gestibile per FAISS
     medquad_docs = medquad_docs[:3000]
     mimic_docs   = mimic_docs[:3000]
 
     print(f"[BUILD] MedQuAD: {len(medquad_docs)}")
     print(f"[BUILD] Asclepius: {len(mimic_docs)}")
 
-    print("[BUILD] Creating FAISS... (this is the slow step)")
+    print("[BUILD] Creating FAISS... (this is a slow step, be patient)")
 
     medquad_db = FAISS.from_documents(medquad_docs, embeddings)
     mimic_db   = FAISS.from_documents(mimic_docs, embeddings)

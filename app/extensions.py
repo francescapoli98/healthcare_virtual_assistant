@@ -1,4 +1,4 @@
-from langchain_google_genai import ChatGoogleGenerativeAI #used all tokens
+from langchain_google_genai import ChatGoogleGenerativeAI 
 from langchain_groq import ChatGroq
 
 ###### GOOGLE AI(gemini)
@@ -9,7 +9,7 @@ from langchain_groq import ChatGroq
 #         temperature=0.3
 #     )
 
-###### GROQ (llama)
+###### GROQ (llama) -> ha più token! 
 def create_llm(app):
     return ChatGroq(
         model="llama-3.3-70b-versatile",

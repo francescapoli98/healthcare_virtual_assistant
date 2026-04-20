@@ -2,14 +2,6 @@ from .core import db
 from werkzeug.security import generate_password_hash, check_password_hash ##sistema login
 
 
-# class Paziente(db.Model):
-#     __tablename__ = "pazienti"
-
-#     id = db.Column(db.Integer, primary_key=True)
-#     nome = db.Column(db.String(80))
-#     cognome = db.Column(db.String(80))
-
-
 class Medico(db.Model):
     __tablename__ = "medici"
 

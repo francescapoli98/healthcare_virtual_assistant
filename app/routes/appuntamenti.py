@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..models import Appuntamento, Medico #..models.appuntamenti se crei cartella \models
+from ..models import Appuntamento, Medico 
 from ..core import db
 from datetime import datetime, timedelta
 from sqlalchemy import func
@@ -40,9 +40,6 @@ def crea_appuntamento():
 
 def is_slot_busy(medico_id, start_time, durata_richiesta):
     end_time = start_time + timedelta(minutes=durata_richiesta)
-    
-    # Cerchiamo se esiste un appuntamento che inizia ESATTAMENTE in quel momento
-    # (Sfruttando il tuo UNIQUE INDEX a livello DB)
     existing = Appuntamento.query.filter_by(
         medico_id=medico_id, 
         data_ora=start_time
@@ -51,7 +48,6 @@ def is_slot_busy(medico_id, start_time, durata_richiesta):
     return existing is not None
 
 #### vista appuntamenti di un paziente
-# @appuntamenti_bp.route("/pazienti/<int:paziente_id>/appuntamenti", methods=["GET"])
 @appuntamenti_bp.route("/paziente/<int:paziente_id>", methods=["GET"])
 def get_appuntamenti_paziente(paziente_id):
     apps = Appuntamento.query.filter_by(paziente_id=paziente_id).all()
@@ -81,7 +77,6 @@ def annulla_appuntamento(id):
 
     return jsonify({"message": "Appuntamento annullato"})
 
-from ..models import Medico  # aggiungi questo all'import esistente
 
 @appuntamenti_bp.route("/medici", methods=["GET"])
 def get_medici():

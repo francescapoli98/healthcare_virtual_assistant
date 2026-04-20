@@ -1,17 +1,45 @@
 version: "3.8"
 
 services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gestione_appuntamenti
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: ./app
     ports:
       - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://root:root@db/gestione_appuntamenti
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./faiss_index:/app/faiss_index  # persiste gli indici FAISS
 
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000
     depends_on:
       - backend
 
-
-      ## per docker: http://backend:5000 anziché localhost
+volumes:
+  mysql_data:
