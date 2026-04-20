@@ -1,3 +1,4 @@
+import os
 from langchain_core.documents import Document
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -5,56 +6,98 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from .data.medquad_loader import load_medquad
 from .data.mimic_loader import load_mimic
 
-# Lazy: inizializzati solo alla prima chiamata
-_embeddings  = None
-_medquad_db  = None
-_mimic_db    = None
+FAISS_DIR = "faiss_index"
 
 
-def _get_dbs():
-    global _embeddings, _medquad_db, _mimic_db
+class RAGEngine:
+    _instance = None
 
-    if _medquad_db is not None:
-        return _medquad_db, _mimic_db   # già pronti
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
 
-    print("[RAG] Caricamento embeddings e indici FAISS...")
+            cls._instance._embeddings = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2",  # più veloce
+                encode_kwargs={"normalize_embeddings": True}
+            )
 
-    _embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2",
-        encode_kwargs={"normalize_embeddings": True}
-    )
+            # cls._instance._embeddings = HuggingFaceEmbeddings(
+            #     model_name="BAAI/bge-base-en-v1.5",
+            #     encode_kwargs={"normalize_embeddings": True}
+            # )
 
-    medquad_docs = [
-        Document(page_content=item["text"], metadata={"source": item["source"]})
-        for item in load_medquad()
-    ]
-    mimic_docs = [
-        Document(page_content=item["text"], metadata={"source": item["source"]})
-        for item in load_mimic(base_path="data/mimiciii-demo/1.4")
-    ]
+            cls._instance._medquad_db = None
+            cls._instance._mimic_db = None
 
-    _medquad_db = FAISS.from_documents(medquad_docs, _embeddings)
-    _mimic_db   = FAISS.from_documents(mimic_docs,   _embeddings)
+            cls._instance._load_indexes()
 
-    print("[RAG] Indici pronti.")
-    return _medquad_db, _mimic_db
+        return cls._instance
 
+    # -----------------------------
+    # LOAD INDEX UNA SOLA VOLTA
+    # -----------------------------
+    def _load_indexes(self):
+        medquad_path = os.path.join(FAISS_DIR, "medquad")
+        mimic_path   = os.path.join(FAISS_DIR, "mimic")
 
-def reciprocal_rank_fusion(results_lists: list[list[Document]], k: int = 60) -> list[Document]:
-    scores: dict[str, float] = {}
-    doc_map: dict[str, Document] = {}
+        print("[RAG] Loading FAISS indexes ONLY...")
 
-    for results in results_lists:
-        for rank, doc in enumerate(results):
+        self._medquad_db = FAISS.load_local(
+            medquad_path,
+            self._embeddings,
+            allow_dangerous_deserialization=True
+        )
+
+        self._mimic_db = FAISS.load_local(
+            mimic_path,
+            self._embeddings,
+            allow_dangerous_deserialization=True
+        )
+
+        print("[RAG] Ready ✔")
+
+    # -----------------------------
+    # RETRIEVAL
+    # -----------------------------
+    def retrieve(self, query: str, top_k: int = 6):
+        medquad_results = self._medquad_db.similarity_search(query, k=top_k)
+        mimic_results   = self._mimic_db.similarity_search(query, k=top_k)
+
+        fused = self._fusion(medquad_results, mimic_results)
+        selected = fused[:top_k]
+
+        context = "\n\n".join(
+            f"[{doc.metadata.get('source','?')}]\n{doc.page_content}"
+            for doc in selected
+        )
+
+        return {
+            "context": context,
+            "has_clinical_cases": any(
+                d.metadata.get("source", "").startswith("asclepius")
+                for d in selected
+            )
+        }
+
+    # -----------------------------
+    # SIMPLE FUSION
+    # -----------------------------
+    def _fusion(self, a, b):
+        seen = set()
+        out = []
+
+        for doc in a + b:
             key = doc.page_content[:120]
-            scores[key] = scores.get(key, 0) + 1 / (k + rank + 1)
-            doc_map[key] = doc
+            if key not in seen:
+                seen.add(key)
+                out.append(doc)
 
-    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    return [doc_map[key] for key, _ in ranked]
+        return out
 
 
-def retrieve_context(query: str, top_k: int = 4) -> str:
-    medquad_db, mimic_db = _get_dbs()
-
-    medquad_results = medquad_db.similarity_search(query, k=top_k)
+# -----------------------------
+# PUBLIC FUNCTION (COMPATIBILITÀ)
+# -----------------------------
+def retrieve_context(query: str, top_k: int = 6):
+    engine = RAGEngine()
+    return engine.retrieve(query, top_k)

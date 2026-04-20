@@ -1,8 +1,8 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from ..core import db
-from ..models import ChatSessione, ChatMessaggio, Medico, Appuntamento
+from ..models import ChatSessione, ChatMessaggio, Medico
 from ..rag.retriever import retrieve_context
-from ..rag.ai_client import generate_response, classify_intent
+from ..rag.ai_client import analyze_query, generate_response
 
 chat_bp = Blueprint("chat", __name__)
 
@@ -16,7 +16,6 @@ def invia_messaggio():
     messaggio = data["message"]
     paziente_id = data.get("paziente_id", 1)
 
-    # Recupera o crea sessione
     sessione_id = data.get("sessione_id")
     if not sessione_id:
         sessione = ChatSessione(paziente_id=paziente_id)
@@ -24,7 +23,6 @@ def invia_messaggio():
         db.session.commit()
         sessione_id = sessione.id
 
-    # Salva messaggio utente
     db.session.add(ChatMessaggio(
         sessione_id=sessione_id,
         ruolo="utente",
@@ -32,10 +30,8 @@ def invia_messaggio():
     ))
     db.session.commit()
 
-    # Gestisci la richiesta
     risposta, extra = gestisci_richiesta(messaggio)
 
-    # Salva risposta assistente
     db.session.add(ChatMessaggio(
         sessione_id=sessione_id,
         ruolo="assistente",
@@ -43,12 +39,9 @@ def invia_messaggio():
     ))
     db.session.commit()
 
-    response = {
-        "sessione_id": sessione_id,
-        "response": risposta
-    }
+    response = {"sessione_id": sessione_id, "response": risposta}
     if extra:
-        response.update(extra)  # es. {"intent": "prenotazione", "medici": [...]}
+        response.update(extra)
 
     return jsonify(response)
 
@@ -73,39 +66,52 @@ def get_storico(paziente_id):
 
 
 def gestisci_richiesta(messaggio):
-    """
-    Ritorna (risposta_testuale, extra_dict).
-    extra_dict può contenere intent e dati strutturati per il frontend.
-    """
-    intent = classify_intent(messaggio)
+    # Una sola chiamata LLM per intent + triage + sintomi
+    analysis = analyze_query(messaggio)
+
+    intent   = analysis.get("intent", "medica")
+    triage   = analysis.get("triage", "normale")
+    severity = analysis.get("severity", "media")
+    specialty = analysis.get("specialty", "")
+
+    # Gestione urgenze — bypassa il RAG e risponde subito
+    if triage == "urgente":
+        risposta = (
+            "⚠️ I sintomi che descrivi potrebbero essere gravi. "
+            "Ti consiglio di chiamare il 118 o recarti al pronto soccorso immediatamente. "
+            "Non attendere un appuntamento ordinario."
+        )
+        return risposta, {"intent": "urgente", "triage": "urgente", "severity": severity}
 
     if intent == "prenotazione":
-        return gestisci_prenotazione(messaggio)
+        testo = (
+            "Certo! Puoi usare il form di prenotazione qui a lato, "
+            "oppure dimmi il nome del medico e la data che preferisci."
+        )
+        return testo, {"intent": "prenotazione", "triage": triage}
 
-    elif intent == "raccomandazione":
-        return gestisci_raccomandazione(messaggio)
+    if intent == "raccomandazione":
+        return gestisci_raccomandazione(messaggio, specialty, triage)
 
-    else:  # intent == "medica" o fallback
-        context = retrieve_context(messaggio)
-        risposta = generate_response(messaggio, context)
-        return risposta, {"intent": "medica"}
+    # intent == "medica"
+    context = retrieve_context(messaggio)
+    risposta = generate_response(messaggio, context)
+
+    # Aggiunge avviso triage se severità media/alta
+    if triage == "attenzione":
+        risposta += "\n\n⚠️ I sintomi che descrivi meritano attenzione. Ti consiglio di consultare un medico presto."
+
+    return risposta, {"intent": "medica", "triage": triage, "severity": severity}
 
 
-def gestisci_raccomandazione(messaggio):
-    """
-    Il RAG capisce il problema, suggerisce la specializzazione,
-    poi recupera i medici disponibili dal DB.
-    """
+def gestisci_raccomandazione(messaggio, specialty, triage):
     context = retrieve_context(messaggio)
     risposta_rag = generate_response(messaggio, context)
 
-    # Estrai la specializzazione suggerita dall'LLM
-    specializzazione = extract_specializzazione(messaggio)
     medici = []
-
-    if specializzazione:
+    if specialty:
         risultati = Medico.query.filter(
-            Medico.specializzazione.ilike(f"%{specializzazione}%")
+            Medico.specializzazione.ilike(f"%{specialty}%")
         ).all()
         medici = [
             {"id": m.id, "nome": f"{m.nome} {m.cognome}",
@@ -116,34 +122,6 @@ def gestisci_raccomandazione(messaggio):
     testo = risposta_rag
     if medici:
         nomi = ", ".join(m["nome"] for m in medici)
-        testo += f"\n\nPer questa problematica ti consiglio di consultare: {nomi}."
-        testo += " Vuoi prenotare un appuntamento?"
+        testo += f"\n\nPer questa problematica ti consiglio: {nomi}. Vuoi prenotare?"
 
-    return testo, {"intent": "raccomandazione", "medici": medici}
-
-
-def gestisci_prenotazione(messaggio):
-    testo = (
-        "Certo! Puoi usare il form di prenotazione qui a lato, "
-        "oppure dimmi il nome del medico e la data che preferisci."
-    )
-    return testo, {"intent": "prenotazione"}
-
-
-def extract_specializzazione(messaggio):
-    """
-    Chiede all'LLM di estrarre la specializzazione medica più adatta.
-    Ritorna una stringa come 'Cardiologia' o None.
-    """
-    from flask import current_app
-    prompt = f"""Dato il seguente messaggio di un paziente, rispondi SOLO con la specializzazione
-medica più appropriata (es: Cardiologia, Dermatologia, Pneumologia, Ortopedia, ecc.).
-Se non è chiaro, rispondi con: nessuna.
-
-Messaggio: {messaggio}
-Specializzazione:"""
-
-    llm = current_app.llm
-    response = llm.invoke(prompt)
-    result = getattr(response, "content", str(response)).strip()
-    return None if result.lower() == "nessuna" else result
+    return testo, {"intent": "raccomandazione", "triage": triage, "medici": medici}

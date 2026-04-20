@@ -18,7 +18,7 @@ export const sendMessage = (message, sessione_id = null, paziente_id = 1) =>
 
 // APPUNTAMENTI
 export const createAppointment  = (data) => api.post("/appuntamenti", data);
-export const getAppointments    = (pid)  => api.get(`/pazienti/${pid}/appuntamenti`);
+export const getAppointments = (pid) => api.get(`/appuntamenti/paziente/${pid}`);
 export const cancelAppointment  = (id)   => api.delete(`/appuntamenti/${id}`);
 
 // STORICO CHAT

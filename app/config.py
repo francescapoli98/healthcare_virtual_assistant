@@ -7,6 +7,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     ## gemini AI API
-    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AQ.Ab8RN6L2xbxlh0wt8dQQf4TONBuhZCf_ErbRZ8d5KECZC5CKDw")
-     ## huggingface
-    HF_TOKEN = os.getenv("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")
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AIzaSyAl8iiIqOD0ndpjWpqGR69huZuWY1vHVYs")
+    ## huggingface
+    HF_TOKEN = os.getenv("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")
+    ## groq
+    GROQ_API_KEY="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"

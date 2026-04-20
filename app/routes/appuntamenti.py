@@ -38,7 +38,8 @@ def crea_appuntamento():
     return jsonify({"message": "Appuntamento creato", "id": app.id}), 201
 
 #### vista appuntamenti di un paziente
-@appuntamenti_bp.route("/pazienti/<int:paziente_id>/appuntamenti", methods=["GET"])
+# @appuntamenti_bp.route("/pazienti/<int:paziente_id>/appuntamenti", methods=["GET"])
+@appuntamenti_bp.route("/paziente/<int:paziente_id>", methods=["GET"])
 def get_appuntamenti_paziente(paziente_id):
     apps = Appuntamento.query.filter_by(paziente_id=paziente_id).all()
 

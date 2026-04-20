@@ -426,3 +426,6 @@ __pycache__/
 report_utils/
 archive/
 mimiciii-demo/
+*_old.py
+faiss_index/
+cache_asclepius.json
