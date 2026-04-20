@@ -46,9 +46,15 @@ Analizza il messaggio di un paziente ed estrai queste informazioni in formato JS
 - severity: "bassa", "media", "alta"
 - specialty: specializzazione medica più rilevante
 - triage: "normale", "attenzione", "urgente"
+- date: "YYYY-MM-DD" (se citata)
+- time: "HH:MM" (se citata)
+- doctor_id: id del medico (se citato)
 
-Regole:
-- "urgente" se sintomi potenzialmente gravi
+REGOLE:
+- Se l'utente chiede di vedere un medico, di fissare un appuntamento o dice "sì" a una proposta di visita -> intent: "prenotazione".
+- Se l'utente descrive sintomi e chiede consiglio -> intent: "raccomandazione".
+- Altrimenti -> intent: "medica".
+- Triage -> "urgente" se sintomi potenzialmente gravi
 - NON inventare sintomi
 - Rispondi SOLO JSON valido
 
@@ -109,12 +115,13 @@ COMPORTAMENTO:
 - Usa memoria + contesto insieme (NON separatamente)
 - Se i sintomi sono già stati menzionati, collegali
 - Se confuso → chiedi chiarimenti
-- NON chiedere sempre prenotazione
+- Suggerisci sempre di vedere un medico.
 
 FLUSSO:
 - interpreta sintomi
-- fai 1 domanda di approfondimento
-- SOLO DOPO suggerisci visita
+- fai una domanda di approfondimento
+- se l'utente vuole prenotare una visita, NON fare domande di approfondimento e cerca la specializzazione medica più adatta alle sue esigenze.
+- suggerisci sempre di aiutare a trovare un medico adatto alle condizioni dell'utente.
 
 Confidence contesto: {confidence}
 
@@ -195,6 +202,16 @@ def handle_user_query(query: str, session_id: int):
     if intent in ["prenotazione", "raccomandazione"]:
         if "si" not in query.lower(): # Evita di ripeterlo se l'utente ha già detto sì
             response += "\n\nVuoi che ti aiuti a trovare lo specialista più adatto?"
+    # Se l'utente vuole prenotare ma mancano dettagli
+    if analysis.get("intent") == "prenotazione":
+        # Verifichiamo nella memoria se abbiamo già chiesto qualcosa
+        summary = summarize_chat(chat_history)
+        if "data" not in query.lower() and "ore" not in query.lower():
+            response = "Certamente, posso aiutarti a prenotare. Per quale giorno e a che ora preferiresti l'appuntamento?"
+        else:
+            response = generate_response(query, retrieve_context(query), summary)
+    else:
+        response = generate_response(query, retrieve_context(query), summarize_chat(chat_history))
 
     # Trigger booking UI
     if intent == "prenotazione" and "si" in query.lower():

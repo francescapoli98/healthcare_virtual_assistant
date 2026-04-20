@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 // import "../App.css";
+import api from "../../services/api";
 
 const API_BASE = "http://localhost:5000";
 
@@ -88,25 +89,28 @@ export default function AppointmentForm({ pazienteId = 1, onSuccess }) {
 
   async function handleSubmit() {
     if (!selectedMedico || !selectedDate || !selectedSlot) return;
-    setLoading(true); setError(null);
+    setLoading(true); 
+    setError(null);
+  
+    const payload = {
+      medico_id:     selectedMedico.id,
+      paziente_id:   pazienteId, // Verifica che questo ID esista nel DB
+      data_ora:      `${selectedDate} ${selectedSlot}`,
+      durata_minuti: 30,
+      note:          note
+    };
+  
     try {
-      const res = await fetch(`${API_BASE}/appuntamenti`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          medico_id:     selectedMedico.id,
-          paziente_id:   pazienteId,
-          data_ora:      `${selectedDate} ${selectedSlot}`,
-          durata_minuti: 30,
-          note
-        })
-      });
-      if (res.status === 409) { setError("Slot già occupato, scegli un altro orario."); return; }
-      if (!res.ok) throw new Error();
-      setSuccess(true);
-      onSuccess?.();
-    } catch {
-      setError("Errore durante la prenotazione. Riprova.");
+      const res = await api.post("/appuntamenti", payload);
+        setSuccess(true);
+      onSuccess?.(); 
+    } catch (err) {
+      if (err.response?.status === 409) {
+        setError("Slot già occupato, scegli un altro orario.");
+      } else {
+        setError("Errore durante la prenotazione. Controlla la console.");
+        console.error("Dettaglio errore:", err.response?.data || err.message);
+      }
     } finally {
       setLoading(false);
     }
