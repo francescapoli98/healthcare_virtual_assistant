@@ -4,6 +4,7 @@ Flask-Migrate==4.1.0
 Flask-CORS==6.0.2
 PyMySQL==1.1.0
 python-dotenv==1.2.2
+torch==2.2.2+cpu
 sentence-transformers
 langchain
 langchain-google-genai
@@ -13,6 +14,6 @@ datasets
 faiss-cpu
 langchain-groq
 pandas
-python-dotenv
-torch
 transformers
+langchain-core
+huggingface_hub
