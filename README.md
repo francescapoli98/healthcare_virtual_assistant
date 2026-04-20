@@ -1,17 +1,21 @@
 # Healthcare virtual assistant
-La challenge consiste nello sviluppare un assistente virtuale per il settore sanitario. L’obiettivo è creare un sistema che possa:
+Sviluppo di un assistente virtuale per il settore sanitario. L’obiettivo è creare un sistema che possa:
 
 - Rispondere a domande complesse dei pazienti
 - Fornire consigli medici di base
 - Gestire gli appuntamenti
 - Comprendere e generare risposte contestuali in modo accurato e naturale
 
-## Setup
-
+## Setup 🔧
+#### build in locale
 1. Clona la repo
 2. Copia `.env.example` in `.env` e inserisci le tue API keys
 3. Costruisci gli indici FAISS (solo la prima volta): `docker compose run backend python -m app.rag.build_index`
 4. Avvia tutto: `docker compose up --build`
+5. Apri su `http://localhost:5173`
+#### tramite Docker Hub
+1. $ `cp .env.example .env` 
+1. $ `docker compose up`
 
 -----------------------------
 
