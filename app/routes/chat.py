@@ -2,10 +2,9 @@ from flask import Blueprint, request, jsonify
 from ..core import db
 from ..models import ChatSessione, ChatMessaggio, Medico
 from ..rag.retriever import retrieve_context
-from ..rag.ai_client import analyze_query, generate_response
+from ..rag.ai_client import handle_user_query #analyze_query, generate_response
 
 chat_bp = Blueprint("chat", __name__)
-
 
 @chat_bp.route("/chat/messaggio", methods=["POST"])
 def invia_messaggio():
@@ -15,35 +14,36 @@ def invia_messaggio():
 
     messaggio = data["message"]
     paziente_id = data.get("paziente_id", 1)
-
     sessione_id = data.get("sessione_id")
+
+    # 1. Gestione Sessione SQL (per persistenza a lungo termine)
     if not sessione_id:
         sessione = ChatSessione(paziente_id=paziente_id)
         db.session.add(sessione)
         db.session.commit()
         sessione_id = sessione.id
 
-    db.session.add(ChatMessaggio(
-        sessione_id=sessione_id,
-        ruolo="utente",
-        contenuto=messaggio
-    ))
+    # 2. CHIAMATA ALL'ORCHESTRATORE (L'AI che ora ha memoria)
+    # Questa funzione ora gestisce internamente analyze, summarize, RAG e add_message
+    ai_response = handle_user_query(messaggio, sessione_id)
+
+    # 3. SINCRONIZZAZIONE DB (Opzionale, se vuoi tenere i messaggi anche su SQL)
+    # Nota: handle_user_query salva già in SESSION_MEMORY (RAM)
+    # Se vuoi salvarli anche nel DB fisico per lo storico:
+    db.session.add(ChatMessaggio(sessione_id=sessione_id, ruolo="utente", contenuto=messaggio))
+    db.session.add(ChatMessaggio(sessione_id=sessione_id, ruolo="assistente", contenuto=ai_response["content"]))
     db.session.commit()
 
-    risposta, extra = gestisci_richiesta(messaggio)
+    # 4. RISPOSTA AL FRONTEND
+    response_data = {
+        "sessione_id": sessione_id,
+        "response": ai_response["content"],
+        "action": ai_response.get("action"),
+        "analysis": ai_response.get("analysis")
+    }
+    
+    return jsonify(response_data)
 
-    db.session.add(ChatMessaggio(
-        sessione_id=sessione_id,
-        ruolo="assistente",
-        contenuto=risposta
-    ))
-    db.session.commit()
-
-    response = {"sessione_id": sessione_id, "response": risposta}
-    if extra:
-        response.update(extra)
-
-    return jsonify(response)
 
 
 @chat_bp.route("/chat/sessione/<int:paziente_id>", methods=["GET"])
@@ -125,3 +125,45 @@ def gestisci_raccomandazione(messaggio, specialty, triage):
         testo += f"\n\nPer questa problematica ti consiglio: {nomi}. Vuoi prenotare?"
 
     return testo, {"intent": "raccomandazione", "triage": triage, "medici": medici}
+
+
+
+
+        ##### old version
+# @chat_bp.route("/chat/messaggio", methods=["POST"])
+# def invia_messaggio():
+#     data = request.get_json()
+#     if not data or "message" not in data:
+#         return jsonify({"error": "Messaggio mancante"}), 400
+
+#     messaggio = data["message"]
+#     paziente_id = data.get("paziente_id", 1)
+
+#     sessione_id = data.get("sessione_id")
+#     if not sessione_id:
+#         sessione = ChatSessione(paziente_id=paziente_id)
+#         db.session.add(sessione)
+#         db.session.commit()
+#         sessione_id = sessione.id
+
+#     db.session.add(ChatMessaggio(
+#         sessione_id=sessione_id,
+#         ruolo="utente",
+#         contenuto=messaggio
+#     ))
+#     db.session.commit()
+
+#     risposta, extra = gestisci_richiesta(messaggio)
+
+#     db.session.add(ChatMessaggio(
+#         sessione_id=sessione_id,
+#         ruolo="assistente",
+#         contenuto=risposta
+#     ))
+#     db.session.commit()
+
+#     response = {"sessione_id": sessione_id, "response": risposta}
+#     if extra:
+#         response.update(extra)
+
+#     return jsonify(response)

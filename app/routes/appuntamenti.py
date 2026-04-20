@@ -13,21 +13,17 @@ def crea_appuntamento():
 
     medico_id = data["medico_id"]
     paziente_id = data["paziente_id"]
+    durata = data.get("durata_minuti", 30)
     data_ora = datetime.strptime(data["data_ora"], "%Y-%m-%d %H:%M")
-    #check conflitti
-    existing = Appuntamento.query.filter_by(
-        medico_id=medico_id,
-        data_ora=data_ora
-    ).first()
 
-    if existing:
+    if is_slot_busy(medico_id, data_ora, data.get("durata_minuti", 30)):
         return jsonify({"error": "Slot già occupato"}), 409
 
     app = Appuntamento(
         medico_id=medico_id,
         paziente_id=paziente_id,
         data_ora=data_ora,
-        durata_minuti=data.get("durata_minuti", 30),
+        durata_minuti=durata,
         note=data.get("note"),
         stato="programmato"
     )
@@ -35,7 +31,21 @@ def crea_appuntamento():
     db.session.add(app)
     db.session.commit()
 
-    return jsonify({"message": "Appuntamento creato", "id": app.id}), 201
+    return jsonify({
+        "message": "Appuntamento creato",
+        "id": app.id
+    }), 201
+
+
+def is_slot_busy(medico_id, start_time, durata_minuti):
+    end_time = start_time + timedelta(minutes=durata_minuti)
+
+    return Appuntamento.query.filter(
+        Appuntamento.medico_id == medico_id,
+        Appuntamento.stato != "annullato",
+        Appuntamento.data_ora < end_time,
+        (Appuntamento.data_ora + timedelta(minutes=Appuntamento.durata_minuti)) > start_time
+    ).first() is not None
 
 #### vista appuntamenti di un paziente
 # @appuntamenti_bp.route("/pazienti/<int:paziente_id>/appuntamenti", methods=["GET"])
@@ -102,4 +112,24 @@ def get_slot_occupati(medico_id):
     return jsonify([
         a.data_ora.strftime("%Y-%m-%d %H:%M") for a in apps
     ])
+
+@appuntamenti_bp.route("/medici/<int:medico_id>/slot-disponibili", methods=["GET"])
+def get_slot_disponibili(medico_id):
+    date = request.args.get("date")  # YYYY-MM-DD
+
+    occupied = get_slot_occupati(medico_id).json
+
+    all_slots = []
+    start = datetime.strptime(date + " 09:00", "%Y-%m-%d %H:%M")
+    end   = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M")
+
+    while start < end:
+        slot = start.strftime("%Y-%m-%d %H:%M")
+
+        if slot not in occupied:
+            all_slots.append(slot)
+
+        start += timedelta(minutes=30)
+
+    return jsonify(all_slots)
 

@@ -18,6 +18,11 @@ def build():
         model_name="sentence-transformers/all-MiniLM-L6-v2",  # più veloce
         encode_kwargs={"normalize_embeddings": True}
     )
+    # HuggingFaceEmbeddings(
+    #             model_name="BAAI/bge-base-en-v1.5",
+    #             encode_kwargs={"normalize_embeddings": True}
+    #         )
+    
 
     os.makedirs(FAISS_DIR, exist_ok=True)
 

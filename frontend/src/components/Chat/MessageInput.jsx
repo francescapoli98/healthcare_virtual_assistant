@@ -4,6 +4,7 @@ export default function MessageInput({ onSend }) {
   const [text, setText] = useState("");
 
   const handleSubmit = () => {
+    if (!text.trim()) return; 
     onSend(text);
     setText("");
   };
@@ -13,8 +14,14 @@ export default function MessageInput({ onSend }) {
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
+          }
+        }}
         placeholder="Scrivi un messaggio..."
-      />
+        />
       <button onClick={handleSubmit}>Invia</button>
     </div>
   );
