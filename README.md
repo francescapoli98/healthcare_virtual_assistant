@@ -8,8 +8,8 @@ Sviluppo di un assistente virtuale per il settore sanitario. L’obiettivo è cr
 
 ## Setup 🔧
 #### build in locale
-1. Clona la repo
-2. Copia `.env.example` in `.env` e inserisci le tue API keys
+1. Clona la repo e apri Docker Desktop
+2. Copia `.env.example` in `.env` e inserisci le tue API keys (Groq, HuggingFace necessarie)
 3. Costruisci gli indici FAISS (solo la prima volta): `docker compose run backend python -m app.rag.build_index`
 4. Avvia tutto: `docker compose up --build`
 5. Apri su `http://localhost:5173`
