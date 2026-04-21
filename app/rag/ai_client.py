@@ -87,7 +87,7 @@ MEMORIA CONVERSAZIONE:
 {memory}
 
 OBIETTIVO:
-- Comprendere i sintomi dell’utente
+- Comprendere i sintomi dell'utente
 - Collegare il messaggio alla memoria precedente
 - Fornire informazioni basate su contesto e storia
 

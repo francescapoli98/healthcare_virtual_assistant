@@ -18,13 +18,6 @@ def create_app():
     db.init_app(app)
     app.llm = get_llm(app)
 
-    # Precarica gli indici RAG all'avvio
-    # with app.app_context():
-    #     from .rag.retriever import _get_dbs
-    #     print("[RAG] Precaricamento indici all'avvio...")
-    #     _get_dbs()
-    #     print("[RAG] Indici pronti, app pronta.")
-
     app.register_blueprint(chat_bp)
     app.register_blueprint(appuntamenti_bp, url_prefix="/appuntamenti")
     app.register_blueprint(auth_bp)
