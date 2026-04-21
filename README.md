@@ -18,7 +18,7 @@ Sviluppo di un assistente virtuale per il settore sanitario. L’obiettivo è cr
 1. $ `docker compose up`
 
 -----------------------------
-
+## Specifiche per la consegna
 ### Componenti 
 
 1. Database
