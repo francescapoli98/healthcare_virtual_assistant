@@ -1,62 +1,75 @@
-# Healthcare virtual assistant
-Sviluppo di un assistente virtuale per il settore sanitario. L’obiettivo è creare un sistema che possa:
+# Healthcare virtual assistant 🤖⚕️
+Sviluppo di un assistente virtuale per il settore sanitario che combina un sistema RAG su dataset medici specializzati con funzionalità di triage automatico, raccomandazione del medico e gestione degli appuntamenti.
 
-- Rispondere a domande complesse dei pazienti
-- Fornire consigli medici di base
-- Gestire gli appuntamenti
-- Comprendere e generare risposte contestuali in modo accurato e naturale
-
-## Setup 🔧
-#### build in locale
-1. Clona la repo e apri Docker Desktop
-2. Copia `.env.example` in `.env` e inserisci le tue API keys (Groq, HuggingFace necessarie)
-3. Costruisci gli indici FAISS (solo la prima volta): `docker compose run backend python -m app.rag.build_index`
-4. Avvia tutto: `docker compose up --build`
-5. Apri su `http://localhost:5173`
-#### tramite Docker Hub
-1. $ `cp .env.example .env` 
-1. $ `docker compose up`
+## 🔧 Setup e avvio 
+- **Prerequisiti:** Docker e Docker Compose installati
+1. Clona il repository
+```bash
+git clone https://github.com/tuo-username/healthcare_virtual_assistant.git
+cd healthcare_virtual_assistant
+```
+2. Configura le variabili d'ambiente: modifica `.env` con le tue API keys (Groq, HuggingFace necessarie)
+```bash
+cp .env.example .env
+```
+#### Opzione 1: uso di Docker Hub
+3. Avvia i container
+```bash
+docker-compose up --build
+```
+#### Opzione 2: build in locale
+3. Costruisci gli indici FAISS (solo la prima volta)
+```bash
+docker compose run backend python -m app.rag.build_index
+```
+6. Avvia tutto con Docker
+```bash
+docker-compose up --build
+```
+5. Vedi su `http://localhost:5173`
 
 -----------------------------
-## Specifiche per la consegna
-### Componenti 
 
-1. Database
-
-- Relazionale/NoSQL: per informazioni su pazienti, medici, appuntamenti e chat (a scelta: MySQL, MongoDB, PostgreSQL, ecc.)
-- Database vettoriale: per la memorizzazione degli embeddings del sistema RAG
-
-2. Backend
-
-- Da implementare con Node.js, Django, Flask o Ruby on Rails
-- Deve esporre API REST per tutte le operazioni CRUD su pazienti, medici, appuntamenti e chat
-
-3. Frontend
-
-- Sviluppato in HTML/CSS/JavaScript o framework (React, Angular, Vue.js)
-- Deve permettere il dialogo con l’assistente, la visualizzazione delle risposte, la gestione degli appuntamenti e la consultazione dello storico chat
+## 📁 Struttura del Progetto
  
-
-### Funzionalità richieste
-
-**Priorità alta**
-
-- Gestione chat: interazione tramite chat con RAG per risposte contestuali (utilizzo dei dataset MedQuAD e MIMIC-III in sinergia)
-- Sistema RAG: risposte accurate grazie ai due dataset
-- Raccomandazione medico: suggerimento del medico più adatto una volta compresa la necessità del cliente
-- Proposta slot liberi: mostrare disponibilità dei medici e prenotazione appuntamenti
-
-**Priorità media**
-- Upload foto diagnosi/analisi: possibilità di caricare immagini diagnostiche o analisi
-- Visualizzazione prenotazioni: elenco delle proprie prenotazioni
-- Storico chat: accesso alle conversazioni passate
+```
+healthcare_virtual_assistant/
+│
+├── app/                          # Package principale del backend Flask
+│   ├── rag/                      # Pipeline RAG: embeddings, query FAISS, composizione contesto LLM
+│   ├── routes/                   # Blueprint Flask con tutti gli endpoint REST
+│   ├── __init__.py               # Application factory
+│   ├── config.py                 # Configurazione centralizzata (DB, chiavi API, parametri RAG)
+│   ├── core.py                   # Logica di business: orchestrazione triage → RAG → risposta
+│   ├── extensions.py             # Estensioni Flask (SQLAlchemy, Login, CORS)
+│   ├── models.py                 # Modelli ORM: Paziente, Medico, Appuntamento, Messaggio
+│   ├── dockerfile                # Dockerfile del servizio backend
+│   └── requirements.txt          # Dipendenze Python
+│
+├── faiss_index/                  # Indice FAISS pre-costruito (embeddings MedQuAD + Asclepius)
+│
+├── frontend/                     # Applicazione React
+│
+├── docker-entrypoint-initdb.d/   # Script SQL per inizializzazione e seeding del DB MySQL
+│
+├── .env.example                  # Template variabili d'ambiente (copiare in .env)
+├── docker-compose.yml            # Orchestrazione multi-container (Flask + React + MySQL)
+└── run.py                        # Entry point Flask (sviluppo locale)
+```
+  
+## ✅ Funzionalità Implementate
+- [x] **Chat con RAG** — interazione in linguaggio naturale con contesto recuperato da MedQuAD e Asclepius¹
+- [x] **Raccomandazione medico** — suggerimento del professionista più adatto in base ai sintomi
+- [x] **Proposta slot liberi e prenotazione** — visualizzazione disponibilità e booking appuntamenti
+- [x] **Visualizzazione prenotazioni** — elenco delle prenotazioni dell'utente autenticato
+- [x] **Login / Registrazione utente**
+- [x] **Modifica / Cancellazione prenotazioni**
+### AI Feature aggiuntiva — Triage automatico
+Il sistema classifica i sintomi descritti dall'utente in tre livelli di urgenza (**bassa / media / alta**) prima di formulare la risposta. In caso di urgenza alta, viene mostrato un avviso esplicito. Il risultato del triage influenza anche la raccomandazione del medico specialista.
+## Sistema RAG
  
-**Priorità bassa (facoltativo)**
-- Login/registrazione utente
-- Modifica/cancellazione prenotazioni
-- Interfaccia lato medico: visualizzazione pazienti/prenotazioni
-- Pagina preview medico: dettaglio problema paziente e chat precedente
-
-_Le funzionalità a priorità bassa sono opzionali: implementale solo dopo aver completato le funzionalità principali (CRUD)._
-
-**Requisito obbligatorio:** integra almeno un’altra funzionalità di AI a tua scelta, rilevante per questo caso d’uso.
+L'indice FAISS in `faiss_index/` è pre-costruito a partire da:
+ 
+- **MedQuAD** — dataset di domande e risposte mediche
+- **Asclepius** — dataset clinico con note in linguaggio naturale
+ 
