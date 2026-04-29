@@ -12,6 +12,10 @@ def create_app():
     app = Flask(__name__)
     CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SECURE"] = False  # False in locale, True in produzione
+
     app.config.from_object("app.config.Config")
     app.secret_key = app.config["SECRET_KEY"]
 

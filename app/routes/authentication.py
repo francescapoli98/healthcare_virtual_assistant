@@ -21,15 +21,28 @@ def register():
     session["paziente_id"] = p.id
     return jsonify({"id": p.id, "nome": p.nome, "cognome": p.cognome}), 201
 
+# @auth_bp.route("/auth/login", methods=["POST"])
+# def login():
+#     data = request.get_json()
+#     p = Paziente.query.filter_by(email=data["email"]).first()
+#     if not p or not p.check_password(data["password"]):
+#         return jsonify({"error": "Credenziali non valide"}), 401
+#     session["paziente_id"] = p.id
+#     return jsonify({"id": p.id, "nome": p.nome, "cognome": p.cognome})
+
 @auth_bp.route("/auth/login", methods=["POST"])
 def login():
     data = request.get_json()
+    print(">>> LOGIN REQUEST:", data)  # ← aggiungi
     p = Paziente.query.filter_by(email=data["email"]).first()
+    print(">>> PAZIENTE TROVATO:", p)  # ← aggiungi
     if not p or not p.check_password(data["password"]):
+        print(">>> CREDENZIALI NON VALIDE")  # ← aggiungi
         return jsonify({"error": "Credenziali non valide"}), 401
     session["paziente_id"] = p.id
+    print(">>> LOGIN OK, session:", session)  # ← aggiungi
     return jsonify({"id": p.id, "nome": p.nome, "cognome": p.cognome})
-
+    
 @auth_bp.route("/auth/logout", methods=["POST"])
 def logout():
     session.clear()
